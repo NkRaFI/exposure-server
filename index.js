@@ -23,7 +23,7 @@ client.connect(err => {
     const orderCollection = client.db("exposurePhotography").collection("orders");
 
     /*------------------All Service Api------------*/ 
-    //get all services
+    //get all services in the DB
     app.get('/services', (req, res) => {
         servicesCollection.find({})
         .toArray((err, services)=>{
@@ -57,7 +57,7 @@ client.connect(err => {
             res.send(result.insertedCount > 0)
         })
     })
-    // get reviews
+    // get all reviews in the DB
     app.get('/reviews', (req, res)=>{
         reviewCollection.find({})
         .toArray((err, reviews)=>{
@@ -74,6 +74,34 @@ client.connect(err => {
         .then(result => {
             res.send(result.insertedCount > 0)
         })
+    })
+    
+    //get booking list of an user by email
+    app.get('/bookingsByEmail', (req, res)=>{
+        const email = req.query.email;
+        orderCollection.find({email: email})
+        .toArray((err, reviews)=>{
+            res.send(reviews)
+        })
+    })
+
+    // get all orders in the DB
+    app.get('/orders', (req, res)=>{
+        orderCollection.find({})
+        .toArray((err, reviews)=>{
+            res.send(reviews)
+        })
+    })
+    // update order status
+    app.patch('/updateStatus/:id', (req, res) => {
+        orderCollection.updateOne(
+          {_id: ObjectId(req.params.id)}, 
+          {
+              $set: {status: req.body.status}
+          })
+          .then(result => {
+              res.send(result.matchedCount > 0);
+          })
     })
 
 });
