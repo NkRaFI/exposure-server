@@ -21,6 +21,7 @@ client.connect(err => {
     const servicesCollection = client.db("exposurePhotography").collection("services");
     const reviewCollection = client.db("exposurePhotography").collection("reviews");
     const orderCollection = client.db("exposurePhotography").collection("orders");
+    const adminCollection = client.db("exposurePhotography").collection("admins");
 
     /*------------------All Service Api------------*/ 
     //get all services in the DB
@@ -45,6 +46,13 @@ client.connect(err => {
             .then(result => {
                 res.send(result.insertedCount > 0)
             })
+    })
+    //delete a service
+    app.delete('/deleteService/:id', (req, res) => {
+        servicesCollection.deleteOne({_id: ObjectId(req.params.id)})
+        .then(result =>{
+            res.send(result.deletedCount > 0)
+        })
     })
 
 
@@ -102,6 +110,26 @@ client.connect(err => {
           .then(result => {
               res.send(result.matchedCount > 0);
           })
+    })
+
+
+    /*----------------------All Admins API-------------------*/
+    // make an admins
+    app.post('/makeAdmin', (req, res) => {
+        const adminEmail = {email: req.body.email}
+        adminCollection.insertOne(adminEmail)
+        .then(result => {
+            res.send(result.matchedCount > 0)
+        })
+    })
+
+    // Checking Admin or Customer
+    app.post('/isAdmin', (req, res) => {
+        const email = req.body.email;
+        adminCollection.find({ email: email })
+            .toArray((err, doctors) => {
+                res.send(doctors.length > 0);
+            })
     })
 
 });
